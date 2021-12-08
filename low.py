@@ -3,15 +3,15 @@ from email.message import EmailMessage
 import psycopg2
 import requests
 import json
+import os
 
-# unix_socket tyyliin tiedot heitetään näin, voi tehdä sitten myöhemmin kun funktio liikahtaa pilveen
-# unix_socket = '/cloudsql/{}'.format("tähän:sqln:connection:name")
+dbpassu = os.environ['DB_PASSWORD']
 
 def hae_tiedot_low():
     d = {}
     con = None
     try:
-        con = psycopg2.connect(database="asdasdasd", user = "asdasdasd", password = "asdasdasd", host = "asdasdasd") # tänne sit host kostaan unix_socket
+        con = psycopg2.connect(database="vittuilu", user = "postgres", password = dbpassu, host = "34.88.209.126")
         cursor = con.cursor()
         SQL = 'SELECT * FROM low;'
         cursor.execute(SQL)
@@ -44,9 +44,12 @@ def emailiohjelma_low(sposti):
     vittuiluviesti = vittuiluviesti_low2()
     viesti.set_content(vittuiluviesti)
 
-    # haetaan lähettäjän tiedot ("spämmiacco")
-    lahettaja_email = "asdasdasdas"                         # salaisuuksiin myöhemmin
-    passu = "asdasdasdasd"                                  # salaisuuksiin myöhemmin
+    # haetaan lähettäjän tiedot envistä ("spämmiacco")
+    emailiossa = os.environ['SEND_EMAIL']
+    emailipassu = os.environ['SEND_EMAIL_PW']
+
+    lahettaja_email = emailiossa
+    passu = emailipassu
     server.login(lahettaja_email, passu)
 
     viesti['Subject'] = f"VittuiluAPIlta hyvää huomenta!"
