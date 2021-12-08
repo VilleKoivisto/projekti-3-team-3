@@ -1,5 +1,6 @@
 import smtplib
 from email.message import EmailMessage
+import flask
 import psycopg2
 import requests
 import json
@@ -7,13 +8,13 @@ import json
 # unix_socket tyyliin tiedot heitetään näin, voi tehdä sitten myöhemmin kun funktio liikahtaa pilveen
 # unix_socket = '/cloudsql/{}'.format("tähän:sqln:connection:name")
 
-def hae_tiedot_low():
+def hae_tiedot_mid():
     d = {}
     con = None
     try:
         con = psycopg2.connect(database="asdasdasd", user = "asdasdasd", password = "asdasdasd", host = "asdasdasd") # tänne sit host kostaan unix_socket
         cursor = con.cursor()
-        SQL = 'SELECT * FROM low;'
+        SQL = 'SELECT * FROM medium;'
         cursor.execute(SQL)
         results = cursor.fetchall()
         for result in results:
@@ -27,13 +28,19 @@ def hae_tiedot_low():
         if con is not None:
             con.close()
 
-def vittuiluviesti_low(request):
-    return "Haista vittu!"
+def vittuiluviesti_mid(request):
+    request_args = request.args
 
-def vittuiluviesti_low2():
-    return "Haista vittu!"
+    if request_args and "name" in request_args:
+        name = request_args["name"]
+    else:
+        name = "juukeli"
+    return "Haista sinä {} vittu!".format(flask.escape(name))
 
-def emailiohjelma_low(sposti):
+def vittuiluviesti_mid2(nimi):
+    return f"Haista sinä {nimi} vittu!"
+
+def emailiohjelma_mid(nimi, sposti):
     server = smtplib.SMTP('smtp.gmail.com', 587)
 
     server.ehlo()
@@ -41,12 +48,12 @@ def emailiohjelma_low(sposti):
     server.ehlo()
 
     viesti = EmailMessage()
-    vittuiluviesti = vittuiluviesti_low2()
+    vittuiluviesti = vittuiluviesti_mid2(nimi)
     viesti.set_content(vittuiluviesti)
 
     # haetaan lähettäjän tiedot ("spämmiacco")
-    lahettaja_email = "asdasdasdas"                         # salaisuuksiin myöhemmin
-    passu = "asdasdasdasd"                                  # salaisuuksiin myöhemmin
+    lahettaja_email = "asdasdasd"                # salaisuuksiin myöhemmin
+    passu = "asdasdasdsad"                                  # salaisuuksiin myöhemmin
     server.login(lahettaja_email, passu)
 
     viesti['Subject'] = f"VittuiluAPIlta hyvää huomenta!"
@@ -56,9 +63,9 @@ def emailiohjelma_low(sposti):
     server.send_message(viesti)
     server.quit()
 
-def looppaa_laheta_low():
-    for i in hae_tiedot_low():
-        haetiedotdict = hae_tiedot_low()
+def looppaa_laheta_mid():
+    for i in hae_tiedot_mid():
+        haetiedotdict = hae_tiedot_mid()
         nimi = haetiedotdict[i][0]
         sposti = haetiedotdict[i][1]
-        emailiohjelma_low(sposti)
+        emailiohjelma_mid(nimi, sposti)

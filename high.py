@@ -7,13 +7,13 @@ import json
 # unix_socket tyyliin tiedot heitetään näin, voi tehdä sitten myöhemmin kun funktio liikahtaa pilveen
 # unix_socket = '/cloudsql/{}'.format("tähän:sqln:connection:name")
 
-def hae_tiedot():  ## korjaa tähän high
+def hae_tiedot_high():
     d = {}
     con = None
     try:
         con = psycopg2.connect(database="asdasdasd", user = "asdasdasd", password = "asdasdasd", host = "asdasdasd") # tänne sit host kostaan unix_socket
         cursor = con.cursor()
-        SQL = 'SELECT * FROM low;' ## korjaa tähän high
+        SQL = 'SELECT * FROM high;'
         cursor.execute(SQL)
         results = cursor.fetchall()
         for result in results:
@@ -27,24 +27,9 @@ def hae_tiedot():  ## korjaa tähän high
         if con is not None:
             con.close()
 
-def emailiohjelma_high():
-    server = smtplib.SMTP('smtp.gmail.com', 587)
-
-    server.ehlo()
-    server.starttls()
-    server.ehlo()
-
-    # lämpötilan haku
-
-    # koostetaan sähköpostit ja lähetetään
-    for i in hae_tiedot():
-        haetiedotdict = hae_tiedot()
-        nimi = haetiedotdict[i][0]
-        paikkakunta = haetiedotdict[i][2]
-
-        # lämpötilan haku annetulta paikkakunnalta
+def vittuiluviesti_high(nimi, paikkakunta):
         zippikoodi = ""
-        api_key = "sdadsaasdasdasd"
+        api_key = "asdasdasdasdasd"
         if paikkakunta == "Helsinki":
             zippikoodi = "00100"
         elif paikkakunta == "Tampere":
@@ -75,20 +60,35 @@ def emailiohjelma_high():
 
         # viestin teko
         vittuiluviesti = f"{nimi}! Ei saatana mikä nimi. Perkele, että mä vihaan tommosia tyyppejä. Tajuatko sä että olis vähän parempi, jos aikoo menestyä elämässä, jos älykkyysosamäärä ois hivenen suurempi kuin kengännumero? Idiootti! Paskahousu!\n\nSää paikkakunnalla {paikkakunta}: {asteet_paikkakunta}\nSää paikkakunnalla Phuket, Thaimaa: {asteet_phuket}\n"
+        return vittuiluviesti
 
-        # viestin prosessointi EmailMessagella
-        viesti = EmailMessage()
-        viesti.set_content(vittuiluviesti)
+def emailiohjelma_high(nimi, paikkakunta, sposti):
+    server = smtplib.SMTP('smtp.gmail.com', 587)
 
-        # haetaan lähettäjän tiedot ("spämmiacco")
-        lahettaja_email = "asdasdads@emaili.com"       # salaisuuksiin myöhemmin
-        passu = "asdsdaasdasd"                                  # salaisuuksiin myöhemmin
-        server.login(lahettaja_email, passu)
+    server.ehlo()
+    server.starttls()
+    server.ehlo()
 
-        viesti['Subject'] = f"VittuiluAPIlta hyvää huomenta!"
-        viesti['From'] = lahettaja_email
-        viesti['To'] = haetiedotdict[i][1]
+    viesti = EmailMessage()
+    vittuiluviesti = vittuiluviesti_high(nimi, paikkakunta)
+    viesti.set_content(vittuiluviesti)
 
-        server.send_message(viesti)
+    # haetaan lähettäjän tiedot ("spämmiacco")
+    lahettaja_email = "asdasdasdsad"                # salaisuuksiin myöhemmin
+    passu = "asdasdasd"                                  # salaisuuksiin myöhemmin
+    server.login(lahettaja_email, passu)
 
+    viesti['Subject'] = f"VittuiluAPIlta hyvää huomenta!"
+    viesti['From'] = lahettaja_email
+    viesti['To'] = sposti
+
+    server.send_message(viesti)
     server.quit()
+
+def looppaa_laheta_high():
+    for i in hae_tiedot_high():
+        haetiedotdict = hae_tiedot_high()
+        nimi = haetiedotdict[i][0]
+        sposti = haetiedotdict[i][1]
+        paikkakunta = haetiedotdict[i][2]
+        emailiohjelma_high(nimi, paikkakunta, sposti)
