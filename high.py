@@ -27,7 +27,45 @@ def hae_tiedot_high():
         if con is not None:
             con.close()
 
-def vittuiluviesti_high(nimi, paikkakunta):
+def vittuiluviesti_high(request):
+    request_args = request.args
+    nimi = request_args["nimi"]
+    paikkakunta = request_args["paikkakunta"]
+
+    zippikoodi = ""
+    api_key = "asdasasd"
+    if paikkakunta == "Helsinki":
+        zippikoodi = "00100"
+    elif paikkakunta == "Tampere":
+        zippikoodi = "33100"
+    elif paikkakunta == "Turku":
+        zippikoodi = "20100"
+    elif paikkakunta == "Espoo":
+        zippikoodi = "02100"
+    elif paikkakunta == "Oulu":
+        zippikoodi = "90100"
+    
+    # suomisää
+    countrykoodi = "fi"
+    url = "https://api.openweathermap.org/data/2.5/weather?zip=%s,%s&appid=%s&units=metric" % (zippikoodi, countrykoodi, api_key)
+    
+    response = requests.get(url)
+    data = json.loads(response.text)
+    asteet_paikkakunta = data['main']['temp_max']
+
+    # phuket sää
+    countrykoodi = "th"
+    zippikoodi = "83000"
+    url = "https://api.openweathermap.org/data/2.5/weather?zip=%s,%s&appid=%s&units=metric" % (zippikoodi, countrykoodi, api_key)
+    
+    response = requests.get(url)
+    data = json.loads(response.text)
+    asteet_phuket = data['main']['temp_max']
+
+    vittuiluviesti = f"{nimi}! Ei saatana mikä nimi. Perkele, että mä vihaan tommosia tyyppejä. Tajuatko sä että olis vähän parempi, jos aikoo menestyä elämässä, jos älykkyysosamäärä ois hivenen suurempi kuin kengännumero? Idiootti! Paskahousu!\n\nSää paikkakunnalla {paikkakunta}: {asteet_paikkakunta}\nSää paikkakunnalla Phuket, Thaimaa: {asteet_phuket}\n"
+    return vittuiluviesti
+
+def vittuiluviesti_high2(nimi, paikkakunta):
         zippikoodi = ""
         api_key = "asdasdasdasdasd"
         if paikkakunta == "Helsinki":
@@ -70,7 +108,7 @@ def emailiohjelma_high(nimi, paikkakunta, sposti):
     server.ehlo()
 
     viesti = EmailMessage()
-    vittuiluviesti = vittuiluviesti_high(nimi, paikkakunta)
+    vittuiluviesti = vittuiluviesti_high2(nimi, paikkakunta)
     viesti.set_content(vittuiluviesti)
 
     # haetaan lähettäjän tiedot ("spämmiacco")
